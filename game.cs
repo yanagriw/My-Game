@@ -15,13 +15,13 @@ class StartScreen : Form {
         BackColor = Color.PowderBlue;
 
         string[] names_of_buttons = {
-            "Play with Captain America", "Play with Batman", "Play with Deadpool", "Play with Iron Man", "Play with Spiderman", "Play with Superman", "Play with Thor"};
+            "Captain America", "Batman", "Deadpool", "Iron Man", "Spiderman", "Superman", "Thor"};
         
         int top = 25;
         for (int i = 0 ; i < 7 ; ++i) {
             int j = i;
             Button b = new Button();
-            b.Text = names_of_buttons[j];
+            b.Text = "Play with " + names_of_buttons[j];
             b.Width = 400;
             b.Height = 40;
             b.Top = top;
@@ -69,6 +69,9 @@ class MyForm : Form {
     string filename(string name) =>
         Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), name);
 
+    Rectangle heroBounds => Rectangle.Inflate(hero.Bounds, -15, -15);
+    Rectangle monsterBounds => Rectangle.Inflate(monster.Bounds, -5, -10);
+
     public MyForm() {
 
         monster.ImageLocation = filename("thanos.png");
@@ -84,7 +87,7 @@ class MyForm : Form {
         column_1.SizeMode = PictureBoxSizeMode.StretchImage;
 
         column_2.ImageLocation = filename("column.png");
-        column_2.Location = new Point(650, 330);
+        column_2.Location = new Point(600, 330);
         column_2.Size = new Size(70, 170);
         column_2.BackColor = Color.Transparent;
         column_2.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -152,7 +155,7 @@ class MyForm : Form {
         if (monster.Left < 0) {
             Choose_monster();
         }
-        if (Rectangle.Inflate(hero.Bounds, -5, -10).IntersectsWith(Rectangle.Inflate(monster.Bounds, -5, -10))) {
+        if (heroBounds.IntersectsWith(monsterBounds)) {
             End_of_game();
         }
         monster.Left -= speed_of_monster;
@@ -162,11 +165,14 @@ class MyForm : Form {
         column_2.Left -= speed_of_column;
         if (column_1.Left + 170 < 0) {
             column_1.Left = 1000;
+            column_1.Size = new Size(70, random.Next(170, 300));
         }
         if (column_2.Left + 170 < 0) {
             column_2.Left = 1000;
+            column_2.Size = new Size(70, random.Next(170, 300));
+            column_2.Location = new Point(1000, 500 - column_2.Height);
         }
-        if (Rectangle.Inflate(hero.Bounds, -5, -10).IntersectsWith(column_1.Bounds) || Rectangle.Inflate(hero.Bounds, -5, -10).IntersectsWith(column_2.Bounds)) {
+        if (heroBounds.IntersectsWith(column_1.Bounds) || heroBounds.IntersectsWith(column_2.Bounds)) {
             End_of_game();
         }
 
@@ -194,6 +200,11 @@ class MyForm : Form {
             speed_of_column += 1;
             speed_of_monster += 1;
             previous_score = actual_score;
+        }
+
+        // controls hint
+        if (actual_score >= 2 && !game_stop){
+            hint.Hide();
         }
     }
 
@@ -248,6 +259,7 @@ class MyForm : Form {
     void End_of_game() {
         score.Text = $"{actual_score}";
         hint.Text = "Press ENTER to start";
+        hint.Show();
         game_stop = true;
         timer.Stop();
     }
